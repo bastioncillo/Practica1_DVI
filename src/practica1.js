@@ -20,38 +20,32 @@ MemoryGame = function(gs) {
 	 */
 	this.initGame = function(){
 		var i = 0;
-		this.posiciones = [Math.floor(Math.random() * 15)];
-		for(i; i < 16; i++){
-			var random = Math.floor(Math.random() * 15);
-			while(posiciones.indexOf(random) == -1){
-				random = Math.floor(Math.random() * 15);
-			}
-			posiciones[i] = random;
-			if(i == 0 || i == 1)
-				this.cards[posiciones[i]] = new MemoryGameCard("8-ball");
+		this.posiciones = [];
+	
+		this.cards[0] = new MemoryGameCard("8-ball");
+		this.cards[1] = new MemoryGameCard("8-ball");
+	
+		this.cards[2] = new MemoryGameCard("potato");
+		this.cards[3] = new MemoryGameCard("potato");
+	
+		this.cards[4] = new MemoryGameCard("dinosaur");
+		this.cards[5] = new MemoryGameCard("dinosaur");
+	
+		this.cards[6] = new MemoryGameCard("kronos");
+		this.cards[7] = new MemoryGameCard("kronos");
+	
+		this.cards[8] = new MemoryGameCard("rocket");
+		this.cards[9] = new MemoryGameCard("rocket");
+	
+		this.cards[10] = new MemoryGameCard("unicorn");
+		this.cards[11] = new MemoryGameCard("unicorn");
+	
+		this.cards[12] = new MemoryGameCard("guy");
+		this.cards[13] = new MemoryGameCard("guy");
+	
+		this.cards[14] = new MemoryGameCard("zeppelin");
+		this.cards[15] = new MemoryGameCard("zeppelin");
 
-			else if(i == 2 || i == 3)
-				this.cards[posiciones[i]] = new MemoryGameCard("potato");
-			
-			else if(i == 4 || i == 5)
-				this.cards[posiciones[i]] = new MemoryGameCard("dinosaur");
-			
-			else if(i == 6 || i == 7)
-				this.cards[posiciones[i]] = new MemoryGameCard("kronos");
-			
-			else if(i == 8 || i == 9)
-				this.cards[posiciones[i]] = new MemoryGameCard("rocket");
-			
-			else if(i == 10 || i == 11)
-				this.cards[posiciones[i]] = new MemoryGameCard("unicorn");
-			
-			else if(i == 12 || i == 13)
-				this.cards[posiciones[i]] = new MemoryGameCard("guy");
-			
-			else
-				this.cards[posiciones[i]] = new MemoryGameCard("zeppelin");
-			
-		}
 		this.loop();
 	}
 
@@ -60,11 +54,14 @@ MemoryGame = function(gs) {
 	 * juego y (2) pide a cada una de las cartas del tablero que se dibujen.
 	 */
 	this.draw = function(){
-		this.graphicServer.drawMesssage(this.message);
+		this.graphicServer.drawMessage(this.message);
 		var i = 0;
+		console.log(this.cards);
 		for(i; i < 16; i++){
-			this.cards[i].draw(gs, i);
+
+			this.cards[i].draw(this.graphicServer, i);
 		}
+
 	}
 
 
@@ -74,11 +71,7 @@ MemoryGame = function(gs) {
 	* setInterval de Javascript.
 	*/
 	this.loop = function(){
-		/*DUDO HORRORES DE QUE SEA ASÍ COMO SE LLAMA A OTRA FUNCIÓN,
-		* ADEMÁS NO SE A CUAL DE LOS DOS DRAWS HAY QUE LLAMAR
-		*/
-		this.draw();
-		//setInterval(this.draw, 16000);
+		setInterval(this.draw.bind(this), 8);
 	}
 
 	/**
@@ -89,6 +82,41 @@ MemoryGame = function(gs) {
 	* la misma las volverá a poner boca abajo.
 	*/
 	this.onClick = function(cardId){
+		var i = 0;
+		var j = 0;
+		var encontrado = false;
+		var coincidencia = false;
+		for (i; i < 16 && !encontrado; i++) {
+			if(this.cards[i].getId() === cardId && this.cards[i].getState() === "down"){
+				this.cards[i].flip();
+				for (j; j < 16 && !coincidencia; j++) {
+					if(i != j && this.cards[j].getId() === cardId && this.cards[j].getState() === "up"){
+						coincidencia = true;
+						this.cards[i].found();
+						this.cards[j].found();
+					}
+				}
+				encontrado = true;
+			}
+		}
+
+		setimeout(function(){
+				this.cards[i].flip();
+				j = 0;
+				for (j; j < 16; i++) {
+					if(i != j && cardId && this.cards[j].getState() === "up")
+						this.cards[j].flip();
+				}
+				}750);
+
+
+
+
+
+
+
+
+
 
 	}
 };
@@ -109,20 +137,39 @@ MemoryGameCard = function(id) {
 	* Da la vuelta a la carta, cambiando el estado de la misma
 	*/
 	this.flip = function(){
-		if(this.state === "down"){this.state = "up";}
-		else if(this.state == "up"){this.state = "down";}
+		if(this.state === "down")
+			this.state = "up";
+
+		else if(this.state === "up")
+			this.state = "down";
 	}
 
 	/**
-	* Marca una carta como encontrada cambiando el estado de la misma
-	*/
+	 * Devuelve el id
+	 */
+	this.getId = function(){
+	 	var that = this;
+	 	return that.id;
+	}
+
+	/**
+	 * Devuelve el estado
+	 */
+	this.getState = function(){
+	 	var that = this;
+	 	return that.state;
+	}
+
+	/**
+	 * Marca una carta como encontrada cambiando el estado de la misma
+	 */
 	this.found = function(){
-		this.state = "foud";
+		this.state = "found";
 	}
 
 	/**
-	* Compara dos cartas, devolviendo true si ambas repreentan la misma carta
-	*/
+	 * Compara dos cartas, devolviendo true si ambas repreentan la misma carta
+	 */
 	this.compareTo = function(otherCard){
 		if(this.id === otherCard)
 			return true;
@@ -131,10 +178,10 @@ MemoryGameCard = function(id) {
 	}
 
 	/**
-	* Dibuja la carta de acuerdo al estado en el que se encuentra.
-	* Recibe como parámetros el servidor gráfico y la posición en la que se encuentra en
-	* el array de cartas del juego (necesario para dibujar una carta).
-	*/
+	 * Dibuja la carta de acuerdo al estado en el que se encuentra.
+	 * Recibe como parámetros el servidor gráfico y la posición en la que se encuentra en
+	 * el array de cartas del juego (necesario para dibujar una carta).
+	 */
 	this.draw = function(gs, pos){
 		if(this.state === "down")
 			gs.draw("back", pos);
