@@ -1,2 +1,2 @@
 # Practica1_DVI
-Una primera versión versión de la práctica
+https://bastioncillo.github.io/Practica1_DVI/
