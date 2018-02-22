@@ -10,7 +10,7 @@ var MemoryGame = MemoryGame || {};
  */
 MemoryGame = function(gs) {
 	this.graphicServer = gs;
-	this.cards[];
+	this.cards=[];
 	this.cardsFounds;
 	this.message = "MemoryGame";
 
