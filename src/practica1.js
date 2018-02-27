@@ -9,9 +9,10 @@ var MemoryGame = MemoryGame || {};
  * Constructora de MemoryGame
  */
 MemoryGame = function(gs) {
+	this.bussy = false;
 	this.graphicServer = gs;
-	this.cards=[];
-	this.cardsFounds;
+	this.cards = [];
+	this.cardsFounds = 0;
 	this.message = "MemoryGame";
 
 	/**
@@ -46,7 +47,22 @@ MemoryGame = function(gs) {
 		this.cards[14] = new MemoryGameCard("zeppelin");
 		this.cards[15] = new MemoryGameCard("zeppelin");
 
+		this.shuffle();
 		this.loop();
+	}
+
+	this.shuffle = function(){
+		var current = this.cards.length;
+		var temp, random;
+
+		 while (0 !== current) {
+		    random = Math.floor(Math.random() * current);
+		    current -= 1;
+
+		    temp = this.cards[current];
+		    this.cards[current] = this.cards[random];
+		    this.cards[random] = temp;
+  		}
 	}
 
 	/**
@@ -56,9 +72,7 @@ MemoryGame = function(gs) {
 	this.draw = function(){
 		this.graphicServer.drawMessage(this.message);
 		var i = 0;
-		console.log(this.cards);
 		for(i; i < 16; i++){
-
 			this.cards[i].draw(this.graphicServer, i);
 		}
 
@@ -82,42 +96,42 @@ MemoryGame = function(gs) {
 	* la misma las volverá a poner boca abajo.
 	*/
 	this.onClick = function(cardId){
-		var i = 0;
-		var j = 0;
-		var encontrado = false;
-		var coincidencia = false;
-		for (i; i < 16 && !encontrado; i++) {
-			if(this.cards[i].getId() === cardId && this.cards[i].getState() === "down"){
-				this.cards[i].flip();
-				for (j; j < 16 && !coincidencia; j++) {
-					if(i != j && this.cards[j].getId() === cardId && this.cards[j].getState() === "up"){
-						coincidencia = true;
-						this.cards[i].found();
-						this.cards[j].found();
+		if(!this.bussy){
+			if(this.cards[cardId].getState() != "up" && this.cards[cardId].getState() != "found"){
+				this.cards[cardId].flip();
+				var fns = false;
+				var i = 0;
+				for(i; i < 16 && !fns; i++){
+					if(this.cards[i].getState() === "up" && i != cardId){
+						if(this.cards[i].getId() === this.cards[cardId].getId()){
+							this.cards[i].found();
+							this.cards[cardId].found();
+							this.message = "Match found!!";
+							this.cardsFounds += 2;
+							fns = true;
+						}else{
+							fns = true;
+							this.message = "Try again";
+							var that = this;
+							var j = i;
+							//bloquear eventos de raton
+							this.bussy = true;
+							setTimeout(function(){
+											//desbloquear eventos de rator
+											that.cards[j].flip();
+											that.cards[cardId].flip();	
+											that.message = "MemoryGame";
+											that.bussy = false;
+										},900);
+
+						}
 					}
 				}
-				encontrado = true;
+
+				if(this.cardsFounds === 16)
+					this.message = "You win!!"
 			}
 		}
-
-		setimeout(function(){
-				this.cards[i].flip();
-				j = 0;
-				for (j; j < 16; i++) {
-					if(i != j && cardId && this.cards[j].getState() === "up")
-						this.cards[j].flip();
-				}
-				}750);
-
-
-
-
-
-
-
-
-
-
 	}
 };
 
