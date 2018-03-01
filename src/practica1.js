@@ -97,39 +97,41 @@ MemoryGame = function(gs) {
 	*/
 	this.onClick = function(cardId){
 		if(!this.bussy){
-			if(this.cards[cardId].getState() != "up" && this.cards[cardId].getState() != "found"){
-				this.cards[cardId].flip();
-				var fns = false;
-				var i = 0;
-				for(i; i < 16 && !fns; i++){
-					if(this.cards[i].getState() === "up" && i != cardId){
-						if(this.cards[i].getId() === this.cards[cardId].getId()){
-							this.cards[i].found();
-							this.cards[cardId].found();
-							this.message = "Match found!!";
-							this.cardsFounds += 2;
-							fns = true;
-						}else{
-							fns = true;
-							this.message = "Try again";
-							var that = this;
-							var j = i;
-							//bloquear eventos de raton
-							this.bussy = true;
-							setTimeout(function(){
-											//desbloquear eventos de rator
-											that.cards[j].flip();
-											that.cards[cardId].flip();	
-											that.message = "MemoryGame";
-											that.bussy = false;
-										},900);
+			if(cardId != null && cardId >= 0 && cardId <= 15){
+				if(this.cards[cardId].getState() != "up" && this.cards[cardId].getState() != "found"){
+					this.cards[cardId].flip();
+					var fns = false;
+					var i = 0;
+					for(i; i < 16 && !fns; i++){
+						if(this.cards[i].getState() === "up" && i != cardId){
+							if(this.cards[i].getId() === this.cards[cardId].getId()){
+								this.cards[i].found();
+								this.cards[cardId].found();
+								this.message = "Match found!!";
+								this.cardsFounds += 2;
+								fns = true;
+							}else{
+								fns = true;
+								this.message = "Try again";
+								var that = this;
+								var j = i;
+								//bloquear eventos de raton
+								this.bussy = true;
+								setTimeout(function(){
+												//desbloquear eventos de rator
+												that.cards[j].flip();
+												that.cards[cardId].flip();	
+												that.message = "MemoryGame";
+												that.bussy = false;
+											},900);
 
+							}
 						}
 					}
-				}
 
-				if(this.cardsFounds === 16)
-					this.message = "You win!!"
+					if(this.cardsFounds === 16)
+						this.message = "You win!!"
+				}
 			}
 		}
 	}
